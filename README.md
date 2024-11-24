@@ -11,5 +11,5 @@ This project features an implementation of base64-like encoding and decoding, us
 - Please review the code and documentation within the files for detailed usage and implementation details.
 
 ## TODO
-- [ ] Create a base64 factory that generates any customized base64 encoding.
+- [x] Create a base64 factory that generates any customized base64 encoding.
 - [ ] Add support for image input in the HTML example.
