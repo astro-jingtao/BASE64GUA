@@ -45,8 +45,13 @@
         </div>
         <div class="text-area-container">
             <label for="outputText">编码后</label><br>
-            <textarea id="outputText" placeholder="结果将显示在这里" readonly></textarea>
+            <textarea id="outputText" placeholder="结果将显示在这里"></textarea>
         </div>
+
+        <!-- <div class="text-area-container">
+            <label for="imageUploader">选择图片</label><br>
+            <input type="file" id="imageUploader" accept="image/*" onchange="encodeImageToBase64()">
+        </div> -->
     </div>
     <button onclick="encodeToBase64()">编码为 Base64</button>
     <button onclick="decodeFromBase64()">从 Base64 解码</button>
@@ -129,41 +134,56 @@
 
         function encodeToBase64() {
             const input = document.getElementById('inputText').value;
-            const encoded = btoa(input);
-            let encoded_custom = '';
-            for (let i = 0; i < encoded.length; i++) {
-                const char = encoded.charAt(i);
-                if (base64Map[char]) {
-                    encoded_custom += base64Map[char];
-                } else {
-                    encoded_custom += char;
-                }
-            }
+            let encoded_custom = mapChars(btoa(input), base64Map);
             document.getElementById('outputText').value = encoded_custom;
         }
 
         function decodeFromBase64() {
             const input = document.getElementById('outputText').value;
-            let decoded = '';
-            for (let i = 0; i < input.length; i++) {
-                const char = input.charAt(i);
-                if (base64MapInverse[char]) {
-                    decoded += base64MapInverse[char];
-                } else {
-                    decoded += char;
-                }
-            }
+            input_mapped = mapChars(input, base64MapInverse)
             try {
-                const decoded_custom = atob(decoded);
-                document.getElementById('inputText').value = decoded_custom;
+                const decoded = atob(input_mapped);
+                document.getElementById('inputText').value = decoded;
             } catch (e) {
                 alert('无效的 Base64 字符串');
             }
         }
-    
+
+        function encodeImageToBase64() {
+            const imageUploader = document.getElementById('imageUploader');
+            if (!imageUploader.files.length) {
+                alert('Please select an image file first.');
+                return;
+            }
+
+            const file = imageUploader.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+                const base64String = event.target.result.split(',')[1];
+                const encoded_custom = mapChars(base64String, base64Map);
+            };
+
+            reader.onerror = function (event) {
+                alert('There was an error reading the file!');
+            };
+
+            reader.readAsDataURL(file); // Read the file as a data URL
+        }
+
+
         function clearText() {
             document.getElementById('inputText').value = '';
             document.getElementById('outputText').value = '';
+            // document.getElementById('imageUploader').value = '';
+        }
+
+        function mapChars(inputStr, map) {
+            let result = []; // Use an array to build the result
+            for (let char of inputStr) { // Iterate over each character
+                result.push(map[char] || char); // Map the character or use the original
+            }
+            return result.join(''); // Join all characters into a single string at the end
         }
     </script>
 </body>
